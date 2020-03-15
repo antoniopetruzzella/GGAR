@@ -1,18 +1,21 @@
 /// <reference path="WikitudePlugin.d.ts" />
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-
+;
 import { TabsPage } from '../pages/tabs/tabs';
+import { NavController,Nav,App } from 'ionic-angular';
 
+import { HomePage } from '../pages/home/home';
 @Component({
   templateUrl: 'app.html'
 })
 export class MyApp {
   rootPage:any = TabsPage;
-
-  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen) {
+//  @ViewChild('myNav') nav: Nav
+  constructor(platform: Platform, statusBar: StatusBar, splashScreen: SplashScreen,app:App) {
+      
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
@@ -38,7 +41,7 @@ export class MyApp {
              * For calls from Wikitude SDK --> Ionic app see the captureScreen example in 
              * WikitudeIonic3StarterApp/www/assets/07_3dModels_6_3dModelAtGeoLocation/js/3dmodelatgeolocation.js*/
             // set the function to be called, when a "communication" is indicated from the AR View  
-            WikitudePlugin.setOnUrlInvokeCallback(function(url) {
+            /*WikitudePlugin.setOnUrlInvokeCallback(function(url) {
       
               console.log("setOnUrlInvokeCallback ...");
               
@@ -59,8 +62,43 @@ export class MyApp {
               } else {
                   alert(url + "not handled");
               }
-            });
-      
+            });*/
+            WikitudePlugin.setJSONObjectReceivedCallback(obj => {
+              
+              console.log("setJSONObjectReceivedCallback ..."+JSON.stringify(obj));
+              // this an example of how to receive a call from a function in the Wikitude SDK (Wikitude SDK --> Ionic)
+              if (obj["action"]){
+                  switch (obj["action"]) {
+                      case "backtoapp":
+                        //app.getRootNav().push(HomePage);
+                        WikitudePlugin.close();
+                        break;
+                      case "closeWikitudePlugin":
+                          // close wikitude plugin
+                          WikitudePlugin.close();
+                          break;
+                      case "captureScreen":
+
+                          WikitudePlugin.captureScreen(
+                              (absoluteFilePath) => {
+                                  console.log("snapshot stored at:\n" + absoluteFilePath);
+              
+                                  // this an example of how to call a function in the Wikitude SDK (Ionic2 app --> Wikitude SDK)
+                                  WikitudePlugin.callJavaScript("World.testFunction('Screenshot saved at: " + absoluteFilePath +"');");
+                              },
+                              (errorMessage) => {
+                                  console.log(errorMessage);
+                              },
+                              true, null
+                          );
+  
+                          break;
+                      default:
+                          console.warn("action not handled => ", obj);
+                          break;
+                  } // end switch
+              } // end if (obj.action)
+          });
             /**
              * Define the generic ok callback
              */

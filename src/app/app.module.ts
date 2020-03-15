@@ -35,8 +35,10 @@ import { SplashScreen } from '@ionic-native/splash-screen';
     ARView
   ],
   providers: [
+  
     StatusBar,
     SplashScreen,
+    
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
