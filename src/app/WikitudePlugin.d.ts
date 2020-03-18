@@ -13,8 +13,9 @@ interface WikitudePlugin {
     successCallback: (success: string) => void,
     errorCallback: (message: string) => void,
     architectWorldPath: string,
-    requiredFeatures: [string],
-    startupConfiguration: JSON): void;
+    requiredFeatures: [string], 
+    startupConfiguration: JSON
+    ): void;
 
   close(): void;
 
